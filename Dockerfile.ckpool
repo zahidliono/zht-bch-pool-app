@@ -8,10 +8,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libtool \
     pkg-config \
     libjansson-dev \
+    libssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build
-RUN git clone --depth 200 https://gitlab.com/bitcoin-mining/ckpool.git . \
+RUN git clone https://gitlab.com/bitcoin-mining/ckpool.git . \
     && git checkout 590fb2a \
     && autoreconf -fi \
     && ./configure \
