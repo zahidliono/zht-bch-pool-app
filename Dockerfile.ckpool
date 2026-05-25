@@ -1,0 +1,28 @@
+FROM debian:bookworm-slim AS builder
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    autoconf \
+    automake \
+    build-essential \
+    libtool \
+    pkg-config \
+    libjansson-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /build
+RUN git clone --depth 200 https://gitlab.com/bitcoin-mining/ckpool.git . \
+    && git checkout 590fb2a \
+    && autoreconf -fi \
+    && ./configure \
+    && make -j$(nproc)
+
+FROM debian:bookworm-slim
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libjansson4 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /build/src/ckpool /usr/local/bin/ckpool
+RUN chmod +x /usr/local/bin/ckpool
+
+ENTRYPOINT ["ckpool"]
