@@ -2,7 +2,7 @@ FROM debian:bookworm-slim AS builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
-    curl \
+    git \
     autoconf \
     automake \
     build-essential \
@@ -13,10 +13,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build
-RUN curl -fsSL --retry 3 -o ckpool.tar.gz \
-    "https://gitlab.com/bitcoin-mining/ckpool/-/archive/590fb2a/ckpool-590fb2a.tar.gz" \
-    && tar xz --strip-components=1 -f ckpool.tar.gz \
-    && rm ckpool.tar.gz \
+# EloPool: BCH-focused ckpool fork (github.com/BitcoinCash1/EloPool)
+RUN git clone --depth 1 https://github.com/BitcoinCash1/EloPool.git . \
     && autoreconf -fi \
     && ./configure \
     && make -j$(nproc)
