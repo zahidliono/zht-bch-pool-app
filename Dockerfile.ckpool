@@ -8,20 +8,23 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libtool \
     pkg-config \
+    yasm \
+    libzmq3-dev \
+    libcap-dev \
     libjansson-dev \
-    libssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build
-# EloPool: BCH-focused ckpool fork (github.com/BitcoinCash1/EloPool)
-RUN git clone --depth 1 https://github.com/BitcoinCash1/EloPool.git . \
-    && autoreconf -fi \
+RUN git clone --depth 1 --branch solobtc https://github.com/golden-guy/ckpool-solo.git . \
+    && ./autogen.sh \
     && ./configure \
     && make -j$(nproc)
 
 FROM debian:bookworm-slim
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libjansson4 \
+    libzmq5 \
+    libcap2 \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /build/src/ckpool /usr/local/bin/ckpool
